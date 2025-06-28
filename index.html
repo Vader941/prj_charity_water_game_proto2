@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <!-- Basic page setup - character encoding, responsive viewport, and title -->
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Pipeline to Hope</title>
+  <!-- Link to the stylesheet that controls how everything looks -->
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <!-- Header section with game title and charity link -->
+  <header>
+    <h1>Pipeline to Hope</h1>
+    <!-- Link to charity: water website with their logo -->
+    <div id="charity-link">
+      <a href="https://www.charitywater.org" target="_blank" rel="noopener noreferrer" title="Learn more about charity: water">
+        <img src="./images/cw_light.png" alt="charity: water logo" class="charity-logo">
+      </a>
+    </div>
+  </header>
+
+  <main>
+    <!-- HUD (Heads Up Display) shows game status information -->
+    <section id="hud">
+      <div>Time: <span id="timer">01:30</span></div>
+      <div>Villages Reached: <span id="score">0/3 | Score: 0</span></div>
+    </section>
+
+    <!-- Main game container with buttons, grid and pipe queue -->
+    <section id="game-container">
+      <!-- Button controls for the game -->
+      <div class="button-stack">
+        <button id="start-btn">Start Water Flow</button>
+        <button id="next-round-btn">Next Round</button>
+        <button id="reset-btn">Reset Game</button>
+      </div>
+      
+      <!-- This is where the 10x10 game grid appears -->
+      <div id="grid"></div>
+      
+      <!-- Shows the upcoming pipes that can be placed -->
+      <div id="pipe-queue">
+        <h3>Next Pipes</h3>
+        <div id="queue"></div>
+        <!-- Information about game mechanics -->
+        <div class="game-info">
+          <p class="info-text">Replacing a pipe costs 2 seconds!</p>
+        </div>
+      </div>
+    </section>
+    
+    <!-- Game instructions section explaining how to play -->
+    <section id="instructions">
+      <h2>How to Play</h2>
+      <div class="instructions-container">
+        <!-- Box explaining basic game mechanics -->
+        <div class="instruction-box">
+          <h3>Game Mechanics</h3>
+          <ol>
+            <li>Connect the water source (blue) to villages (yellow) using pipes</li>
+            <li>Click on any empty space to place the next pipe from your queue</li>
+            <li>Replace existing pipes by clicking on them (costs 2 seconds)</li>
+            <li>Build your pipeline before time runs out</li>
+            <li>Water will automatically flow when time expires</li>
+            <li>Complete multiple rounds to maximize your score</li>
+          </ol>
+        </div>
+        
+        <!-- Box explaining how scoring works -->
+        <div class="instruction-box">
+          <h3>Scoring System</h3>
+          <ul>
+            <li><span class="positive">+15 points</span> for each village reached</li>
+            <li><span class="negative">-7 points</span> for each village not reached</li>
+            <li><span class="positive">+3 points</span> for each pipe that carries water</li>
+            <li><span class="negative">-1 point</span> for each unused pipe</li>
+          </ul>
+        </div>
+        
+        <!-- Box with helpful playing tips -->
+        <div class="instruction-box">
+          <h3>Tips</h3>
+          <ul>
+            <li>Plan your route carefully - be efficient with pipes</li>
+            <li>Use T-junctions and crossings to reach multiple villages</li>
+            <li>Watch the pipe queue to plan ahead</li>
+            <li>Avoid obstacles (rocks and trash)</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <!-- Modal popup for clean water facts between rounds -->
+    <div id="fact-modal" class="modal">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h3>Did You Know? 💧</h3>
+        </div>
+        <div class="modal-body">
+          <p class="fact-text">
+            [PLACEHOLDER] This is where a clean water fact would appear before each round.
+            Facts about water access, health benefits, and charity: water's impact would rotate.
+          </p>
+          <p class="fact-source">
+            Each round will feature a different fact about clean water and its importance.
+          </p>
+        </div>
+        <div class="modal-footer">
+          <button id="learn-more-btn" class="learn-more-btn">Learn More</button>
+          <button id="ok-btn" class="ok-btn">OK</button>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <!-- Link to the JavaScript file that makes the game work -->
+  <script src="script.js"></script>
+</body>
+</html>

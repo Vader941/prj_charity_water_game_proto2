@@ -1,0 +1,465 @@
+body {
+  font-family: sans-serif;
+  background-color: #f5f5f5;
+  margin: 0;
+  padding: 0;
+  color: #333;
+}
+
+header {
+  background-color: #1a1a1a;
+  color: #ffc907;
+  padding: 1em;
+  text-align: center;
+}
+
+#charity-link {
+  margin-top: 0.5em;
+  position: relative;
+}
+
+.charity-logo {
+  max-width: 180px;
+  height: auto;
+  transition: transform 0.2s;
+}
+
+.charity-logo:hover {
+  transform: scale(1.05);
+}
+
+/* Modify title tooltip to appear instantly */
+#charity-link a::before {
+  content: attr(title);
+  position: absolute;
+  bottom: -30px;
+  left: 50%;
+  transform: translateX(-50%);
+  padding: 5px 10px;
+  background-color: rgba(0, 0, 0, 0.8);
+  color: white;
+  border-radius: 4px;
+  font-size: 0.9em;
+  pointer-events: none;
+  white-space: nowrap;
+  opacity: 0;
+  transition: opacity 0.1s;
+  z-index: 100;
+}
+
+#charity-link a:hover::before {
+  opacity: 1;
+  transition-delay: 0s; /* Make it appear instantly */
+}
+
+/* === Game HUD (Heads Up Display) === */
+/* The bar showing time and score */
+#hud {
+  display: flex; /* Uses flexible layout */
+  justify-content: space-around; /* Spaces items evenly */
+  background: #eee; /* Light gray background */
+  padding: 1em; /* Space inside the HUD */
+  font-size: 1.2em; /* Larger text size */
+}
+
+/* === Main Game Area === */
+/* Container for all game elements */
+#game-container {
+  display: flex; /* Uses flexible layout */
+  justify-content: center; /* Centers content horizontally */
+  align-items: flex-start; /* Aligns items to the top */
+  padding: 1em; /* Space inside the container */
+  gap: 2em; /* Space between elements */
+}
+
+/* The 10x10 game grid */
+#grid {
+  display: grid; /* Creates a grid layout */
+  grid-template-columns: repeat(10, 40px); /* 10 columns of 40px each */
+  grid-template-rows: repeat(10, 40px); /* 10 rows of 40px each */
+  gap: 2px; /* Small gap between grid cells */
+  background-color: #ccc; /* Gray background for the grid */
+}
+
+/* Individual cells in the grid */
+.grid-tile {
+  width: 40px; /* Fixed width */
+  height: 40px; /* Fixed height */
+  background-color: white; /* White background */
+  border: 1px solid #999; /* Gray border */
+  display: flex; /* For centering content */
+  justify-content: center; /* Centers horizontally */
+  align-items: center; /* Centers vertically */
+  position: relative; /* For proper image positioning */
+}
+
+/* Special styling for different element types */
+.water_source {
+  background-color: #a9d4ff; /* Light blue for water source */
+}
+
+.village {
+  background-color: #ffe8a9; /* Light yellow for villages */
+}
+
+.rock {
+  background-color: #d9d9d9; /* Gray for rock barriers */
+}
+
+.trash {
+  background-color: #ffd6d6; /* Light red for trash barriers */
+}
+
+/* Image styling inside grid tiles */
+.pipe-image,
+.element-image {
+  max-width: 90%; /* Limits image size */
+  max-height: 90%; /* Ensures image fits in tile */
+  object-fit: contain; /* Maintains aspect ratio */
+}
+
+/* Pipe queue area */
+#pipe-queue {
+  width: 160px; /* Fixed width */
+}
+
+/* Container for the pipe previews */
+#queue {
+  display: flex; /* Flexible layout */
+  flex-direction: column; /* Stack vertically */
+  gap: 5px; /* Space between items */
+}
+
+/* === Button Styling === */
+/* Container for stacked buttons */
+.button-stack {
+  display: flex; /* Flexible layout */
+  flex-direction: column; /* Stack vertically */
+  gap: 10px; /* Space between buttons */
+  width: 160px; /* Fixed width */
+  align-self: center; /* Center vertically in parent */
+  margin-bottom: 10px; /* Space below */
+}
+
+/* General button styling */
+button {
+  padding: 0.75em 1.5em; /* Space inside buttons */
+  border: none; /* No border */
+  font-size: 1em; /* Text size */
+  cursor: pointer; /* Hand cursor on hover */
+  transition: all 0.3s; /* Smooth animations */
+  border-radius: 4px; /* Rounded corners */
+  width: 100%; /* Full width of parent */
+}
+
+/* Start button */
+#start-btn {
+  background-color: #ffC907; /* Yellow/gold color */
+  color: #333; /* Dark text */
+}
+
+/* Reset button */
+#reset-btn {
+  background-color: #ff3333; /* Red color */
+  color: white; /* White text */
+}
+
+/* Next round button */
+#next-round-btn {
+  background-color: #003366; /* Dark blue color */
+  color: white; /* White text */
+  border: none;
+  padding: 8px 12px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-weight: bold; /* Bold text */
+}
+
+/* Disabled next round button */
+#next-round-btn:disabled {
+  background-color: #77ABBB; /* Lighter blue */
+  cursor: not-allowed; /* Indicates button can't be used */
+}
+
+/* Button hover effect - moves slightly up */
+button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0,0,0,0.1); /* Subtle shadow */
+}
+
+/* Button active effect - moves back to normal position */
+button:active {
+  transform: translateY(0);
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1); /* Smaller shadow */
+}
+
+/* Disabled button styling */
+button:disabled {
+  opacity: 0.6; /* Makes it semi-transparent */
+  cursor: not-allowed; /* Change cursor */
+  transform: none; /* No hover effect */
+  box-shadow: none; /* No shadow */
+}
+
+/* === Timer and Visual Effects === */
+/* Timer display */
+#timer {
+  font-weight: bold; /* Bold text */
+  transition: color 0.3s; /* Smooth color transition */
+}
+
+/* Timer when time is up */
+.time-up {
+  color: red; /* Red text */
+  animation: blink 1s infinite; /* Blinking animation */
+}
+
+/* Blinking animation keyframes */
+@keyframes blink {
+  0% { opacity: 1; } /* Fully visible */
+  50% { opacity: 0.5; } /* Half transparent */
+  100% { opacity: 1; } /* Fully visible again */
+}
+
+/* Pipe tile styling */
+.pipe {
+  background-color: #e6e6e6; /* Light gray background */
+  cursor: pointer; /* Hand cursor */
+  position: relative; /* For overlay positioning */
+}
+
+/* Creates a hover effect overlay for pipes */
+.pipe::before {
+  content: ''; /* Required for ::before to work */
+  position: absolute; /* Positioned relative to pipe */
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(255, 0, 0, 0.1); /* Light red overlay */
+  opacity: 0; /* Hidden by default */
+  transition: opacity 0.2s; /* Smooth fade */
+}
+
+/* Shows the overlay when hovering */
+.pipe:hover::before {
+  opacity: 1; /* Fully visible */
+}
+
+/* Makes the overlay darker when clicking */
+.pipe:active::before {
+  background-color: rgba(255, 0, 0, 0.3); /* Darker red */
+}
+
+/* Timer penalty styling */
+.time-penalty {
+  color: #ff3333 !important; /* Red text */
+  font-size: 1.2em; /* Larger text */
+  animation: pulse 0.5s ease-out; /* Pulse animation */
+}
+
+/* Pulse animation keyframes */
+@keyframes pulse {
+  0% { transform: scale(1); } /* Normal size */
+  50% { transform: scale(1.2); } /* 20% bigger */
+  100% { transform: scale(1); } /* Back to normal */
+}
+
+/* Game info box styling */
+.game-info {
+  margin-top: 20px; /* Space above */
+  padding: 10px; /* Space inside */
+  background-color: #f5e5c0; /* Light orange background */
+  border-radius: 5px; /* Rounded corners */
+  font-size: 0.9em; /* Smaller text */
+}
+
+/* Text inside game info box */
+.info-text {
+  margin: 0;
+  color: #b33a00; /* Dark orange/red text */
+  font-weight: bold; /* Bold text */
+}
+
+/* Final score styling */
+.final-score {
+  font-weight: bold; /* Bold text */
+  color: #007bff; /* Blue color */
+  animation: score-pulse 1s ease-in-out 3; /* Pulse 3 times */
+}
+
+/* Score pulse animation */
+@keyframes score-pulse {
+  0% { transform: scale(1); } /* Normal size */
+  50% { transform: scale(1.2); } /* 20% bigger */
+  100% { transform: scale(1); } /* Back to normal */
+}
+
+/* === Instructions Section === */
+/* Container for the instructions */
+#instructions {
+  max-width: 900px; /* Maximum width */
+  margin: 20px auto; /* Center horizontally with space above/below */
+  padding: 15px; /* Space inside */
+  text-align: center; /* Center text */
+}
+
+/* Instructions title */
+#instructions h2 {
+  color: #003366; /* Dark blue */
+  margin-bottom: 20px;
+  font-size: 1.8em; /* Large text */
+}
+
+/* Container for instruction boxes */
+.instructions-container {
+  display: flex; /* Flexible layout */
+  justify-content: center; /* Center horizontally */
+  flex-wrap: wrap; /* Wrap to new row if needed */
+  gap: 20px; /* Space between boxes */
+}
+
+/* Individual instruction box */
+.instruction-box {
+  background-color: white; /* White background */
+  border-radius: 8px; /* Rounded corners */
+  padding: 15px; /* Space inside */
+  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.1); /* Subtle shadow */
+  flex: 1; /* Grow to available space */
+  min-width: 250px; /* Minimum width */
+  max-width: 350px; /* Maximum width */
+}
+
+/* Instruction box headers */
+.instruction-box h3 {
+  color: #ffC907; /* Yellow/gold text */
+  background-color: #003366; /* Dark blue background */
+  padding: 8px; /* Space inside */
+  border-radius: 4px; /* Rounded corners */
+  margin-top: 0; /* No space above */
+}
+
+/* Lists inside instruction boxes */
+.instruction-box ol,
+.instruction-box ul {
+  text-align: left; /* Left-align text */
+  padding-left: 25px; /* Space for list markers */
+  line-height: 1.6; /* More space between lines */
+}
+
+/* List items */
+.instruction-box li {
+  margin-bottom: 8px; /* Space between items */
+}
+
+/* Styling for positive points in scoring */
+.positive {
+  color: #2e8b57; /* Green color */
+  font-weight: bold; /* Bold text */
+}
+
+/* Styling for negative points in scoring */
+.negative {
+  color: #dd3333; /* Red color */
+  font-weight: bold; /* Bold text */
+}
+
+/* === Modal Popup for Water Facts === */
+/* Full-screen modal background */
+.modal {
+  display: none; /* Hidden by default */
+  position: fixed; /* Fixed position over everything */
+  z-index: 1000; /* Ensures it's on top */
+  left: 0;
+  top: 0;
+  width: 100%; /* Full width */
+  height: 100%; /* Full height */
+  background-color: rgba(0, 0, 0, 0.7); /* Semi-transparent dark overlay */
+  overflow: auto; /* Allow scrolling if needed */
+}
+
+/* Modal content container */
+.modal-content {
+  background-color: #fefefe; /* White background */
+  margin: 15% auto; /* Center vertically with space above */
+  padding: 0;
+  border: 1px solid #888; /* Gray border */
+  border-radius: 8px; /* Rounded corners */
+  width: 60%; /* Take up 60% of screen width */
+  max-width: 500px; /* But not more than 500px */
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3); /* Shadow for depth */
+  animation: modalFadeIn 0.4s; /* Entrance animation */
+}
+
+/* Animation for modal appearing */
+@keyframes modalFadeIn {
+  from {opacity: 0; transform: translateY(-50px);} /* Start from above and invisible */
+  to {opacity: 1; transform: translateY(0);} /* End at normal position and visible */
+}
+
+/* Modal header */
+.modal-header {
+  padding: 15px 20px; /* Space inside */
+  background-color: #003366; /* Dark blue */
+  color: #ffC907; /* Yellow/gold text */
+  border-top-left-radius: 8px; /* Rounded top corners */
+  border-top-right-radius: 8px;
+}
+
+/* Modal title */
+.modal-header h3 {
+  margin: 0; /* No margin */
+  font-size: 1.4em; /* Larger text */
+}
+
+/* Modal body area */
+.modal-body {
+  padding: 20px; /* Space inside */
+}
+
+/* Main fact text */
+.fact-text {
+  font-size: 1.1em; /* Slightly larger text */
+  margin-bottom: 15px; /* Space below */
+  line-height: 1.5; /* Space between lines */
+}
+
+/* Source citation for fact */
+.fact-source {
+  font-size: 0.9em; /* Smaller text */
+  color: #666; /* Medium gray */
+  font-style: italic; /* Italicized */
+}
+
+/* Modal footer */
+.modal-footer {
+  padding: 15px 20px; /* Space inside */
+  background-color: #f5f5f5; /* Light gray */
+  border-bottom-left-radius: 8px; /* Rounded bottom corners */
+  border-bottom-right-radius: 8px;
+  display: flex; /* Flexible layout */
+  justify-content: space-between; /* Space buttons apart */
+}
+
+/* OK button */
+.ok-btn {
+  background-color: #ffC907; /* Yellow/gold */
+  color: #333; /* Dark text */
+  padding: 10px 20px; /* Space inside */
+  border: none;
+  border-radius: 4px; /* Rounded corners */
+  cursor: pointer; /* Hand cursor */
+  font-weight: bold; /* Bold text */
+  width: auto; /* Only as wide as needed */
+}
+
+/* Learn More button */
+.learn-more-btn {
+  background-color: #003366; /* Dark blue */
+  color: white; /* White text */
+  padding: 10px 20px; /* Space inside */
+  border: none;
+  border-radius: 4px; /* Rounded corners */
+  cursor: pointer; /* Hand cursor */
+  width: auto; /* Only as wide as needed */
+}
