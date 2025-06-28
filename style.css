@@ -1,5 +1,5 @@
 body {
-  font-family: sans-serif;
+  font-family: "Proxima Nova", sans-serif;
   background-color: #f5f5f5;
   margin: 0;
   padding: 0;
@@ -11,6 +11,13 @@ header {
   color: #ffc907;
   padding: 1em;
   text-align: center;
+}
+
+header h1 {
+  font-size: 2.5em; /* Larger heading size */
+  margin: 0 0 0.5em 0; /* Remove default margin and add bottom spacing */
+  font-weight: bold;
+  letter-spacing: 1px; /* Slight letter spacing for elegance */
 }
 
 #charity-link {
@@ -72,6 +79,76 @@ header {
   gap: 2em; /* Space between elements */
 }
 
+/* === Difficulty Selector === */
+/* Container for difficulty dropdown */
+#difficulty-selector {
+  width: 160px; /* Fixed width to match pipe-queue */
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+/* Difficulty selector label */
+.difficulty-label {
+  font-weight: bold;
+  color: #003366;
+  text-align: center;
+  margin-bottom: 5px;
+}
+
+/* Difficulty dropdown styling */
+#difficulty-select {
+  padding: 8px 12px;
+  border: 2px solid #003366;
+  border-radius: 4px;
+  background-color: white;
+  color: #333;
+  font-size: 1em;
+  cursor: pointer;
+  transition: all 0.3s;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+/* Dropdown hover effect */
+#difficulty-select:hover {
+  border-color: #ffc907;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+/* Dropdown focus effect */
+#difficulty-select:focus {
+  outline: none;
+  border-color: #ffc907;
+  box-shadow: 0 0 0 2px rgba(255, 201, 7, 0.2);
+}
+
+/* Difficulty info display */
+.difficulty-info {
+  background-color: #f8f9fa;
+  border: 1px solid #dee2e6;
+  border-radius: 4px;
+  padding: 10px;
+  font-size: 0.85em;
+  color: #495057;
+  line-height: 1.4;
+}
+
+.difficulty-info h4 {
+  margin: 0 0 8px 0;
+  color: #003366;
+  font-size: 1em;
+}
+
+.difficulty-info ul {
+  margin: 0;
+  padding-left: 16px;
+}
+
+.difficulty-info li {
+  margin-bottom: 3px;
+}
+
 /* The 10x10 game grid */
 #grid {
   display: grid; /* Creates a grid layout */
@@ -95,7 +172,7 @@ header {
 
 /* Special styling for different element types */
 .water_source {
-  background-color: #a9d4ff; /* Light blue for water source */
+  background-color:  #8BD1CB; /* Light blue for water source */
 }
 
 .village {
@@ -160,13 +237,13 @@ button {
 
 /* Reset button */
 #reset-btn {
-  background-color: #ff3333; /* Red color */
+  background-color:  #F5402C; /* Red color */
   color: white; /* White text */
 }
 
 /* Next round button */
 #next-round-btn {
-  background-color: #003366; /* Dark blue color */
+  background-color: #2E9DF7; /* Dark blue color */
   color: white; /* White text */
   border: none;
   padding: 8px 12px;
@@ -177,7 +254,7 @@ button {
 
 /* Disabled next round button */
 #next-round-btn:disabled {
-  background-color: #77ABBB; /* Lighter blue */
+  background-color: #8BD1CB; /* Lighter blue */
   cursor: not-allowed; /* Indicates button can't be used */
 }
 
@@ -462,4 +539,41 @@ button:disabled {
   border-radius: 4px; /* Rounded corners */
   cursor: pointer; /* Hand cursor */
   width: auto; /* Only as wide as needed */
+}
+
+/* === Footer Styling === */
+footer {
+  background-color: #2E9DF7; /* Blue background */
+  color: #FFC907; /* Yellow text */
+  text-align: center;
+  padding: 20px;
+  margin-top: 40px;
+  font-size: 0.9em;
+}
+
+.footer-content {
+  max-width: 900px;
+  margin: 0 auto;
+}
+
+.footer-content p {
+  margin: 5px 0;
+}
+
+/* Footer link styling */
+footer a {
+  color: #FFC907; /* Yellow text for links */
+  text-decoration: none;
+  font-weight: bold;
+  transition: color 0.3s ease;
+}
+
+footer a:hover {
+  color: #FFDD44; /* Lighter yellow on hover */
+  text-decoration: underline;
+}
+
+footer a:active,
+footer a:visited:active {
+  color: #FF902A; /* Orange when clicked */
 }

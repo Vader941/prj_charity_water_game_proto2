@@ -29,6 +29,25 @@
 
     <!-- Main game container with buttons, grid and pipe queue -->
     <section id="game-container">
+      <!-- Difficulty selector -->
+      <div id="difficulty-selector">
+        <label for="difficulty-select" class="difficulty-label">Difficulty</label>
+        <select id="difficulty-select">
+          <option value="easy">Easy</option>
+          <option value="normal" selected>Normal</option>
+          <option value="hard">Hard</option>
+        </select>
+        <div class="difficulty-info" id="difficulty-info">
+          <h4>Normal Mode</h4>
+          <ul>
+            <li>Timer: 1:30</li>
+            <li>Villages: 3</li>
+            <li>Barriers: 12 total</li>
+            <li>Pipe Preview: 5</li>
+          </ul>
+        </div>
+      </div>
+      
       <!-- Button controls for the game -->
       <div class="button-stack">
         <button id="start-btn">Start Water Flow</button>
@@ -70,12 +89,18 @@
         <!-- Box explaining how scoring works -->
         <div class="instruction-box">
           <h3>Scoring System</h3>
-          <ul>
-            <li><span class="positive">+15 points</span> for each village reached</li>
-            <li><span class="negative">-7 points</span> for each village not reached</li>
-            <li><span class="positive">+3 points</span> for each pipe that carries water</li>
-            <li><span class="negative">-1 point</span> for each unused pipe</li>
-          </ul>
+          <p style="font-size: 0.9em; margin-bottom: 15px; color: #555;">
+            Scoring varies by difficulty level. Currently showing: <strong id="current-difficulty-name">Normal Mode</strong>
+          </p>
+          
+          <div id="scoring-details">
+            <ul style="margin: 5px 0; padding-left: 20px;">
+              <li><span class="positive">+15 points</span> for each village reached</li>
+              <li><span class="positive">+3 points</span> for each pipe that carries water</li>
+              <li><span class="negative">-1 point</span> for each unused pipe</li>
+              <li><span class="negative">-7 points</span> for each village not reached</li>
+            </ul>
+          </div>
         </div>
         
         <!-- Box with helpful playing tips -->
@@ -99,11 +124,10 @@
         </div>
         <div class="modal-body">
           <p class="fact-text">
-            [PLACEHOLDER] This is where a clean water fact would appear before each round.
-            Facts about water access, health benefits, and charity: water's impact would rotate.
+            Loading water fact...
           </p>
           <p class="fact-source">
-            Each round will feature a different fact about clean water and its importance.
+            Source information will appear here.
           </p>
         </div>
         <div class="modal-footer">
@@ -114,7 +138,16 @@
     </div>
   </main>
 
+  <!-- Footer with copyright and attribution -->
+  <footer>
+    <div class="footer-content">
+      <p>&copy; 2025 Nathan Able</p>
+      <p>Inspired by <a href="https://www.charitywater.org/" target="_blank" rel="noopener noreferrer">charity: water</a></p>
+    </div>
+  </footer>
+
   <!-- Link to the JavaScript file that makes the game work -->
+  <script src="waterFacts.js"></script>
   <script src="script.js"></script>
 </body>
 </html>

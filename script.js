@@ -1,3 +1,83 @@
+// ===== Sound System =====
+// Audio objects for game sound effects
+const sounds = {
+  placement: new Audio('./mp3/placement.mp3'),
+  replace: new Audio('./mp3/replace.mp3'),
+  fillWater: new Audio('./mp3/fill_water.mp3'),
+  crash: new Audio('./mp3/crash.mp3'),
+  yay: new Audio('./mp3/yay.mp3'),
+  nextRound: new Audio('./mp3/next_round.mp3')
+};
+
+// Set volume levels for all sounds (0.0 to 1.0)
+Object.values(sounds).forEach(sound => {
+  sound.volume = 0.7; // Adjust volume as needed
+});
+
+// Function to play a sound effect
+function playSound(soundName) {
+  try {
+    if (sounds[soundName]) {
+      sounds[soundName].currentTime = 0; // Reset to beginning
+      sounds[soundName].play().catch(e => {
+        // Handle autoplay restrictions gracefully
+        console.log(`Could not play ${soundName} sound:`, e.message);
+      });
+    }
+  } catch (error) {
+    console.log(`Error playing ${soundName} sound:`, error.message);
+  }
+}
+
+// ===== Difficulty Configurations =====
+const difficultyConfigs = {
+  easy: {
+    timerSeconds: 105, // 1:45
+    villageCount: 3,
+    trashBarriers: 4,
+    rockBarriers: 4,
+    totalBarriers: 8,
+    pipePreviewCount: 7,
+    scoring: {
+      villageReached: 10,
+      pipeWithWater: 2,
+      unusedPipe: -2,
+      unreachedVillage: -10
+    }
+  },
+  normal: {
+    timerSeconds: 90, // 1:30
+    villageCount: 3,
+    trashBarriers: 4,
+    rockBarriers: 8,
+    totalBarriers: 12,
+    pipePreviewCount: 5,
+    scoring: {
+      villageReached: 15,
+      pipeWithWater: 3,
+      unusedPipe: -1,
+      unreachedVillage: -7
+    }
+  },
+  hard: {
+    timerSeconds: 75, // 1:15
+    villageCount: 4,
+    trashBarriers: 7,
+    rockBarriers: 8,
+    totalBarriers: 15,
+    pipePreviewCount: 3,
+    scoring: {
+      villageReached: 20,
+      pipeWithWater: 5,
+      unusedPipe: -0.5,
+      unreachedVillage: -4
+    }
+  }
+};
+
+// Current difficulty setting
+let currentDifficulty = 'normal';
+
 // ===== Pipe Types and Utilities =====
 /*
  * This game is about creating pipe networks to deliver water to villages.
@@ -140,7 +220,7 @@ let gameGrid = new Array(gridSize * gridSize).fill(elementTypes.EMPTY);  // The 
 let waterSourcePos = -1;  // Position of the water source
 let villagePositions = []; // Positions of all villages (destinations)
 let timerInterval = null;  // Tracks the countdown timer
-let timeRemaining = 90;    // Starting time in seconds
+let timeRemaining = 90;    // Starting time in seconds (will be set by difficulty)
 let gameActive = false;    // Whether the game is currently being played
 let firstPipePlaced = false; // Whether the player has placed their first pipe
 let cumulativeScore = 0;   // The total score across all rounds
@@ -214,7 +294,7 @@ function endGame() {
 function resetTimer() {
   clearInterval(timerInterval);
   timerInterval = null;
-  timeRemaining = 90;
+  timeRemaining = difficultyConfigs[currentDifficulty].timerSeconds;
   firstPipePlaced = false;
   gameActive = false;
   
@@ -257,22 +337,32 @@ function initializeGame() {
   cumulativeScore = 0;
   currentRound = 1;
   
+  // Get current difficulty config
+  const config = difficultyConfigs[currentDifficulty];
+  
   // Place water source on a random edge tile
   waterSourcePos = placeRandomEdgeElement(elementTypes.WATER_SOURCE);
   
-  // Place three villages with different distance requirements from water source
-  // This ensures the game has a good challenge level
-  villagePositions.push(placeVillage(8, 6)); // First village - at least 8x6 squares away
-  villagePositions.push(placeVillage(6, 4)); // Second village - at least 6x4 squares away
-  villagePositions.push(placeVillage(7, 5)); // Third village - at least 7x5 squares away
-  
-  // Place obstacles to make the game more challenging
-  for (let i = 0; i < 4; i++) {
-    placeRandomNonEdgeElement(elementTypes.TRASH); // Place exactly 4 trash barriers
+  // Place villages based on difficulty setting
+  for (let i = 0; i < config.villageCount; i++) {
+    if (i === 0) {
+      villagePositions.push(placeVillage(8, 6)); // First village - at least 8x6 squares away
+    } else if (i === 1) {
+      villagePositions.push(placeVillage(6, 4)); // Second village - at least 6x4 squares away
+    } else if (i === 2) {
+      villagePositions.push(placeVillage(7, 5)); // Third village - at least 7x5 squares away
+    } else {
+      villagePositions.push(placeVillage(5, 3)); // Additional villages for hard mode
+    }
   }
   
-  for (let i = 0; i < 8; i++) {
-    placeRandomNonEdgeElement(elementTypes.ROCK); // Place exactly 8 rock barriers
+  // Place obstacles based on difficulty setting
+  for (let i = 0; i < config.trashBarriers; i++) {
+    placeRandomNonEdgeElement(elementTypes.TRASH);
+  }
+  
+  for (let i = 0; i < config.rockBarriers; i++) {
+    placeRandomNonEdgeElement(elementTypes.ROCK);
   }
   
   // Create the visual game grid and generate initial pipe queue
@@ -287,6 +377,9 @@ function initializeGame() {
   if (startBtn) {
     startBtn.disabled = !firstPipePlaced;
   }
+  
+  // Update difficulty selector state
+  updateDifficultySelector();
 }
 
 // Places a village at a minimum distance from water source
@@ -469,9 +562,10 @@ function createGrid() {
   }
 }
 
-// Generates a queue of 5 random pipes for the player to use
+// Generates a queue of random pipes for the player to use based on difficulty
 function generatePipeQueue() {
-  pipeQueue = Array.from({ length: 5 }, () => getRandomPipeType());
+  const config = difficultyConfigs[currentDifficulty];
+  pipeQueue = Array.from({ length: config.pipePreviewCount }, () => getRandomPipeType());
   renderPipeQueue();
 }
 
@@ -522,10 +616,15 @@ function placePipe(index) {
     startTimer();
     // Enable the start water flow button once first pipe is placed
     document.getElementById('start-btn').disabled = false;
+    // Disable difficulty selector during gameplay
+    updateDifficultySelector();
   }
   
   // Apply time penalty if replacing an existing pipe
   if (gameGrid[index] === elementTypes.PIPE) {
+    // Play replace sound
+    playSound('replace');
+    
     // Subtract 2 seconds, but don't go below 0
     timeRemaining = Math.max(0, timeRemaining - 2);
     
@@ -550,6 +649,8 @@ function placePipe(index) {
   
   // Get the next pipe from the queue
   const pipeType = pipeQueue[0];
+  const wasReplacement = gameGrid[index] === elementTypes.PIPE;
+  
   tile.innerHTML = ''; // Clear any existing content
   tile.className = 'grid-tile pipe'; // Reset classes and add pipe class
   
@@ -574,10 +675,18 @@ function placePipe(index) {
   // Update the game state
   gameGrid[index] = elementTypes.PIPE;
   
+  // Play appropriate sound effect
+  if (!wasReplacement) {
+    playSound('placement');
+  }
+  
   // Move to next pipe in queue and add a new random pipe at the end
   pipeQueue.shift();
   pipeQueue.push(getRandomPipeType());
   renderPipeQueue();
+  
+  // Play sound effect for pipe placement
+  playSound('placement');
 }
 
 // Checks if a pipe's image matches its type (for debugging)
@@ -611,6 +720,9 @@ function verifyPipeType(position) {
 
 // Start the water flow process from the water source
 function startWaterFlow() {
+  // Play water flow sound
+  playSound('fillWater');
+  
   // Disable the button during simulation
   document.getElementById('start-btn').disabled = true;
   
@@ -686,6 +798,9 @@ function processWaterFlow(flowQueue, waterFlowGrid, villagesReached, index = 0) 
     // If water reaches a village, mark it as reached
     waterFlowGrid[position] = true;
     villagesReached.add(position);
+    
+    // Play celebration sound
+    playSound('yay');
     
     // Change village image to show water
     const tile = gridElement.children[position];
@@ -797,12 +912,21 @@ function processWaterFlow(flowQueue, waterFlowGrid, villagesReached, index = 0) 
   } else {
     // For other elements (rocks, trash, empty) - water doesn't flow through
     console.log(`Element at ${position} blocks water flow`);
+    
+    // Play crash sound if water hits a barrier (rock or trash)
+    if (elementType === elementTypes.ROCK || elementType === elementTypes.TRASH) {
+      playSound('crash');
+    }
+    
     processWaterFlow(flowQueue, waterFlowGrid, villagesReached, index + 1);
   }
 }
 
 // Calculate final score and display results when water flow is complete
 function endWaterFlow(villagesReached) {
+  // Get current difficulty config for scoring
+  const config = difficultyConfigs[currentDifficulty];
+  
   // Calculate score for this round
   let roundScore = 0;
   let pipeCount = 0;
@@ -814,21 +938,21 @@ function endWaterFlow(villagesReached) {
       pipeCount++;
       const tile = gridElement.children[i];
       if (tile.classList.contains('has-water')) {
-        // +3 points for each pipe that carries water (efficient network)
-        roundScore += 3;
+        // Points for each pipe that carries water (efficient network)
+        roundScore += config.scoring.pipeWithWater;
         pipesWithWater++;
       } else {
-        // -1 point for each unused pipe (inefficient network)
-        roundScore -= 1;
+        // Penalty for each unused pipe (inefficient network)
+        roundScore += config.scoring.unusedPipe; // Note: this is negative
       }
     }
   }
   
   // Add points for villages reached (main goal)
-  roundScore += villagesReached.size * 15;
+  roundScore += villagesReached.size * config.scoring.villageReached;
   
   // Subtract points for villages not reached (failed objectives)
-  roundScore -= (villagePositions.length - villagesReached.size) * 7;
+  roundScore += (villagePositions.length - villagesReached.size) * config.scoring.unreachedVillage; // Note: this is negative
   
   // Update cumulative score
   cumulativeScore += roundScore;
@@ -864,11 +988,16 @@ function endWaterFlow(villagesReached) {
     // Enable buttons for next steps
     document.getElementById('next-round-btn').disabled = false;
     document.getElementById('reset-btn').disabled = false;
+    // Re-enable difficulty selector
+    updateDifficultySelector();
   }, 1000);
 }
 
 // Start a new round while keeping the cumulative score
 function startNextRound() {
+  // Play next round sound
+  playSound('nextRound');
+  
   // Increment round counter
   currentRound++;
   
@@ -880,20 +1009,31 @@ function startNextRound() {
   villagePositions = [];
   resetTimer();
   
+  // Get current difficulty config
+  const config = difficultyConfigs[currentDifficulty];
+  
   // Place new elements for this round
   waterSourcePos = placeRandomEdgeElement(elementTypes.WATER_SOURCE);
   
-  // Place three villages with different distance requirements
-  villagePositions.push(placeVillage(8, 6));
-  villagePositions.push(placeVillage(6, 4));
-  villagePositions.push(placeVillage(7, 5));
+  // Place villages based on difficulty setting
+  for (let i = 0; i < config.villageCount; i++) {
+    if (i === 0) {
+      villagePositions.push(placeVillage(8, 6)); // First village - at least 8x6 squares away
+    } else if (i === 1) {
+      villagePositions.push(placeVillage(6, 4)); // Second village - at least 6x4 squares away
+    } else if (i === 2) {
+      villagePositions.push(placeVillage(7, 5)); // Third village - at least 7x5 squares away
+    } else {
+      villagePositions.push(placeVillage(5, 3)); // Additional villages for hard mode
+    }
+  }
   
-  // Place barriers
-  for (let i = 0; i < 4; i++) {
+  // Place obstacles based on difficulty setting
+  for (let i = 0; i < config.trashBarriers; i++) {
     placeRandomNonEdgeElement(elementTypes.TRASH);
   }
   
-  for (let i = 0; i < 8; i++) {
+  for (let i = 0; i < config.rockBarriers; i++) {
     placeRandomNonEdgeElement(elementTypes.ROCK);
   }
   
@@ -907,6 +1047,9 @@ function startNextRound() {
   // Disable buttons appropriately
   document.getElementById('start-btn').disabled = true;
   document.getElementById('next-round-btn').disabled = true;
+  
+  // Update difficulty selector state
+  updateDifficultySelector();
 }
 
 // ===== Educational Water Facts Modal =====
@@ -915,6 +1058,20 @@ function startNextRound() {
 // Show the water fact modal popup
 function showWaterFactModal() {
   const modal = document.getElementById('fact-modal');
+  
+  // Get a random water fact from the waterFacts.js file
+  const randomFact = getRandomWaterFact();
+  const formattedFact = formatFactForModal(randomFact);
+  
+  // Update the modal content with the real fact
+  const factText = modal.querySelector('.fact-text');
+  const factSource = modal.querySelector('.fact-source');
+  
+  if (factText && factSource) {
+    factText.innerHTML = `<strong>${formattedFact.boldStatement}</strong><br><br>${formattedFact.fullText}`;
+    factSource.innerHTML = formattedFact.source;
+  }
+  
   modal.style.display = 'block';
   
   // Add event listeners for buttons
@@ -927,16 +1084,93 @@ function closeModal() {
   document.getElementById('fact-modal').style.display = 'none';
 }
 
-// Handle the "Learn More" button (placeholder)
+// Handle the "Learn More" button - redirect to charity: water global water crisis page
 function learnMore() {
-  alert('This would link to educational resources about clean water access.');
-  // In the future, this would open a new tab with educational content
-  // window.open('https://www.charitywater.org/global-water-crisis', '_blank');
-  closeModal();
+  window.open('https://www.charitywater.org/global-water-crisis', '_blank', 'noopener,noreferrer');
+}
+
+// ===== Difficulty Selector Functions =====
+
+// Updates the difficulty info display
+function updateDifficultyInfo() {
+  const config = difficultyConfigs[currentDifficulty];
+  const infoElement = document.getElementById('difficulty-info');
+  
+  if (infoElement) {
+    const difficultyName = currentDifficulty.charAt(0).toUpperCase() + currentDifficulty.slice(1);
+    const minutes = Math.floor(config.timerSeconds / 60);
+    const seconds = config.timerSeconds % 60;
+    const timeString = `${minutes}:${seconds.toString().padStart(2, '0')}`;
+    
+    infoElement.innerHTML = `
+      <h4>${difficultyName} Mode</h4>
+      <ul>
+        <li>Timer: ${timeString}</li>
+        <li>Villages: ${config.villageCount}</li>
+        <li>Barriers: ${config.totalBarriers} total</li>
+        <li>Pipe Preview: ${config.pipePreviewCount}</li>
+      </ul>
+    `;
+  }
+  
+  // Update scoring section
+  updateScoringDisplay();
+}
+
+// Updates the scoring display based on current difficulty
+function updateScoringDisplay() {
+  const config = difficultyConfigs[currentDifficulty];
+  const difficultyNameElement = document.getElementById('current-difficulty-name');
+  const scoringDetailsElement = document.getElementById('scoring-details');
+  
+  if (difficultyNameElement && scoringDetailsElement) {
+    const difficultyName = currentDifficulty.charAt(0).toUpperCase() + currentDifficulty.slice(1);
+    difficultyNameElement.textContent = `${difficultyName} Mode`;
+    
+    // Set color based on difficulty
+    const colors = {
+      easy: '#2e8b57',
+      normal: '#ff8c00', 
+      hard: '#dc143c'
+    };
+    difficultyNameElement.style.color = colors[currentDifficulty];
+    
+    // Update scoring details
+    scoringDetailsElement.innerHTML = `
+      <ul style="margin: 5px 0; padding-left: 20px;">
+        <li><span class="positive">+${config.scoring.villageReached} points</span> for each village reached</li>
+        <li><span class="positive">+${config.scoring.pipeWithWater} points</span> for each pipe that carries water</li>
+        <li><span class="negative">${config.scoring.unusedPipe} points</span> for each unused pipe</li>
+        <li><span class="negative">${config.scoring.unreachedVillage} points</span> for each village not reached</li>
+      </ul>
+    `;
+  }
+}
+
+// Handles difficulty change
+function onDifficultyChange() {
+  const difficultySelect = document.getElementById('difficulty-select');
+  if (difficultySelect) {
+    currentDifficulty = difficultySelect.value;
+    updateDifficultyInfo();
+    
+    // If game hasn't started yet, reinitialize with new difficulty
+    if (!firstPipePlaced) {
+      initializeGame();
+    }
+  }
+}
+
+// Enable/disable difficulty selector based on game state
+function updateDifficultySelector() {
+  const difficultySelect = document.getElementById('difficulty-select');
+  if (difficultySelect) {
+    difficultySelect.disabled = firstPipePlaced && gameActive;
+  }
 }
 
 // ===== Start Game =====
-// This is the event handler for the "Start Water Flow" button
+// this is the event handler for the "Start Water Flow" button
 
 document.getElementById('start-btn').addEventListener('click', () => {
   // Only allow water flow if at least one pipe has been placed
@@ -965,6 +1199,14 @@ document.addEventListener('DOMContentLoaded', () => {
   if (!initializeDOM()) {
     alert("Error: Could not initialize game interface. Please refresh the page.");
     return;
+  }
+  
+  // Initialize difficulty selector
+  const difficultySelect = document.getElementById('difficulty-select');
+  if (difficultySelect) {
+    difficultySelect.addEventListener('change', onDifficultyChange);
+    updateDifficultyInfo(); // Set initial info display
+    updateScoringDisplay(); // Set initial scoring display
   }
   
   // Initialize the game
